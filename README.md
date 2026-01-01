@@ -1,4 +1,5 @@
-# Claude-in-the-box: minimal sandbox orchestration system allowing you to serve claude-code like omni-capable agents to normal users.
+# Claude-in-the-box: 
+Minimal sandbox orchestration system allowing you to serve claude-code like omni-capable agents to normal users.
 
 ## Short tech stack: 
 You launch Firecracker microVMs on cloud instance. Each user request creates a persistent claude agent until microVM is killed. Files and context persists between runs. 
@@ -9,9 +10,9 @@ The micro daemon that runs inside microVM comes from s oss e2b infrastructure re
 
 You can play with various ways to use this: 
 
--> simplest: your users send in task, you spin a microVM, claude works inside until done then you pull files
---> more interesting: do a little conversation magic -> send in previous messages from db for context and then persist what claude streams back
----> you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
+→ **Simplest**: your users send in task, you spin a microVM, claude works inside until done then you pull files
+  →→ **Interesting**: do a little conversation magic -> send in previous messages from db for context and then persist what claude streams back
+  →→→ **Advanced**: you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
 
 ## Instructions:
 
@@ -135,7 +136,7 @@ gcloud compute instances add-tags firecracker-host \
 <details>
 <summary>2.c Host dependancies - Click to expand</summary>
 
-2.c SSH in and install system dependencies
+SSH in and install system dependencies
 
 ```bash
 # SSH to the instance
@@ -267,8 +268,6 @@ sudo systemctl status firecracker-host.service
 
 <details>
 <summary>3. Building your Claude agent image - Click to expand</summary>
-
-3. Build your claude code image
 
 You can do this either locally and then copy the finished image to Firecracker-host or copy base files and build on firecracker (copy of final image takes long because its a large file)
 
@@ -547,7 +546,6 @@ API_KEY="X"
 
 # Host endpoint (include http:// and port :8080)
 SANDBOX="http://YOUR_GCP_IP:8080"
-# Example: SANDBOX="http://34.10.254.245:8080"
 
 ANTHROPIC_API_KEY=""
 ```
