@@ -550,7 +550,7 @@ API_KEY="X"
 # Host endpoint (include http:// and port :8080)
 SANDBOX="http://YOUR_GCP_IP:8080"
 
-ANTHROPIC_API_KEY=""
+ANTHROPIC_API_KEY="your key"
 ```
 
 ## 1. Create MicroVM
@@ -567,11 +567,6 @@ curl -X POST "$SANDBOX/create_microvm" \
 ```json
 {"status": "created", "vm_ip": "10.0.1.100", "pid": 1234}
 ```
-
-**Timing:**
-- Python/Node/Bash: ~3-5 seconds
-- Claude: ~5-8 seconds (larger image)
-
 ---
 
 ## 2. Task Execution
@@ -595,14 +590,6 @@ curl -N --max-time 300 -X POST "$SANDBOX/claude_in_the_box" \
 the hello.py must be in the cd where you are running the cmd from
 
 **Note:** The `-N` flag disables buffering to see streaming output in real-time, and `--max-time 300` sets a 5-minute timeout.
-
-**Expected Response:**
-Streaming JSON events:
-```json
-{"type": "text", "content": "I'll help you..."}
-{"type": "tool_use", "content": {...}}
-{"type": "completion", "content": "Done!"}
-```
 
 ---
 
