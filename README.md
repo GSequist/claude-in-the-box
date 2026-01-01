@@ -1,6 +1,6 @@
 # Claude-in-the-box: 
 Minimal sandbox orchestration system allowing you to serve claude-code like omni-capable agents to normal users.
-Claude code-like monent for normal users.
+Claude code-like moment for normal users.
 
 ## Short tech stack: 
  - You launch Firecracker microVMs on cloud instance. 
