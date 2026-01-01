@@ -1,0 +1,58 @@
+package filesystem
+
+import (
+	"context"
+	"fmt"
+	"os"
+	"path/filepath"
+
+	"connectrpc.com/connect"
+
+	"envd-mini/internal/permissions"
+	rpc "envd-mini/spec/grpc/envd/filesystem"
+)
+
+func (s Service) Move(ctx context.Context, req *connect.Request[rpc.MoveRequest]) (*connect.Response[rpc.MoveResponse], error) {
+	u, err := permissions.GetAuthUser(ctx, s.defaults.User)
+	if err != nil {
+		return nil, err
+	}
+
+	source, err := permissions.ExpandAndResolve(req.Msg.GetSource(), u, s.defaults.Workdir)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	destination, err := permissions.ExpandAndResolve(req.Msg.GetDestination(), u, s.defaults.Workdir)
+	if err != nil {
+		return nil, connect.NewError(connect.CodeInvalidArgument, err)
+	}
+
+	uid, gid, userErr := permissions.GetUserIds(u)
+	if userErr != nil {
+		return nil, connect.NewError(connect.CodeInternal, userErr)
+	}
+
+	userErr = permissions.EnsureDirs(filepath.Dir(destination), int(uid), int(gid))
+	if userErr != nil {
+		return nil, connect.NewError(connect.CodeInternal, userErr)
+	}
+
+	err = os.Rename(source, destination)
+	if err != nil {
+		if os.IsNotExist(err) {
+			return nil, connect.NewError(connect.CodeNotFound, fmt.Errorf("source file not found: %w", err))
+		}
+
+		return nil, connect.NewError(connect.CodeInternal, fmt.Errorf("error renaming: %w", err))
+	}
+
+	entry, err := entryInfo(destination)
+	if err != nil {
+		return nil, err
+	}
+
+	return connect.NewResponse(&rpc.MoveResponse{
+		Entry: entry,
+	}), nil
+}

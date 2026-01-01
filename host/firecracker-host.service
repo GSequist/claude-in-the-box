@@ -1,0 +1,26 @@
+[Unit]
+Description=Firecracker Host Service
+After=network.target
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/home
+EnvironmentFile=/home/.env
+Environment="PYTHONUNBUFFERED=1"
+ExecStartPre=/bin/bash -c '/sbin/modprobe -r nbd 2>/dev/null || true'
+ExecStartPre=/sbin/modprobe nbd nbds_max=32 max_part=0
+ExecStartPre=/bin/bash -c 'chmod 666 /opt/firecracker/images/*.ext4'
+ExecStartPre=/bin/bash -c 'chown -R root:root /opt/firecracker/vms'
+ExecStartPre=/bin/bash -c 'chmod -R 755 /opt/firecracker/vms'
+ExecStartPre=/bin/bash -c 'PRIMARY_IFACE=$(ip route | grep default | awk "{print \$5}"); iptables -t nat -C POSTROUTING -s 10.0.1.0/24 -o $PRIMARY_IFACE -j MASQUERADE 2>/dev/null || iptables -t nat -A POSTROUTING -s 10.0.1.0/24 -o $PRIMARY_IFACE -j MASQUERADE'
+ExecStartPre=/bin/bash -c 'iptables -A FORWARD -s 10.0.1.0/24 -o ens4 -j ACCEPT'
+ExecStartPre=/bin/bash -c 'iptables -A FORWARD -d 10.0.1.0/24 -i ens4 -m state --state RELATED,ESTABLISHED -j ACCEPT'
+ExecStart=/usr/bin/python3 /home/app.py
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

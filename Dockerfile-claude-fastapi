@@ -1,0 +1,99 @@
+FROM python:3.11-slim
+
+# Install Node.js for claude-code CLI
+RUN apt-get update && apt-get install -y \
+    nodejs npm \
+    systemd systemd-sysv \
+    bash wget curl socat \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install claude-code CLI
+RUN npm install -g @anthropic-ai/claude-code
+
+# Install Python dependencies
+RUN pip install --no-cache-dir \
+    claude-agent-sdk \
+    anthropic \
+    httpx \
+    fastapi \
+    uvicorn \
+    pydantic \
+    websockets
+
+# Copy envd binary to /usr/bin/envd
+COPY envd-mini/envd /usr/bin/envd
+RUN chmod +x /usr/bin/envd
+
+# Copy FastAPI server
+COPY server /root/.server
+
+RUN mkdir -p /workspace/.claude
+COPY server/.claude /workspace/.claude
+
+# Disable unnecessary systemd services to speed up boot
+RUN systemctl mask apt-daily.timer apt-daily-upgrade.timer \
+    dpkg-db-backup.timer systemd-tmpfiles-clean.timer \
+    man-db.timer e2scrub_all.timer fstrim.timer || true
+
+# Disable serial console services that block systemd boot in Firecracker
+RUN systemctl mask serial-getty@ttyS0.service getty@tty1.service || true
+
+# Configure systemd to not wait indefinitely for devices
+RUN mkdir -p /etc/systemd/system.conf.d && \
+    echo '[Manager]' > /etc/systemd/system.conf.d/no-wait-devices.conf && \
+    echo 'DefaultTimeoutStartSec=10s' >> /etc/systemd/system.conf.d/no-wait-devices.conf && \
+    echo 'DefaultTimeoutStopSec=10s' >> /etc/systemd/system.conf.d/no-wait-devices.conf
+
+# Create envd systemd service (optimized for fast startup)
+RUN echo '[Unit]' > /etc/systemd/system/envd.service && \
+    echo 'Description=Env Daemon Service' >> /etc/systemd/system/envd.service && \
+    echo 'After=network-online.target' >> /etc/systemd/system/envd.service && \
+    echo 'Wants=network-online.target' >> /etc/systemd/system/envd.service && \
+    echo '' >> /etc/systemd/system/envd.service && \
+    echo '[Service]' >> /etc/systemd/system/envd.service && \
+    echo 'Type=simple' >> /etc/systemd/system/envd.service && \
+    echo 'Restart=always' >> /etc/systemd/system/envd.service && \
+    echo 'User=root' >> /etc/systemd/system/envd.service && \
+    echo 'Group=root' >> /etc/systemd/system/envd.service && \
+    echo 'Environment=GOTRACEBACK=all' >> /etc/systemd/system/envd.service && \
+    echo 'LimitCORE=infinity' >> /etc/systemd/system/envd.service && \
+    echo 'ExecStart=/bin/bash -l -c "/usr/bin/envd"' >> /etc/systemd/system/envd.service && \
+    echo 'OOMPolicy=continue' >> /etc/systemd/system/envd.service && \
+    echo 'OOMScoreAdjust=-1000' >> /etc/systemd/system/envd.service && \
+    echo '' >> /etc/systemd/system/envd.service && \
+    echo '[Install]' >> /etc/systemd/system/envd.service && \
+    echo 'WantedBy=multi-user.target' >> /etc/systemd/system/envd.service
+
+# Enable envd service to start automatically 
+RUN mkdir -p /etc/systemd/system/multi-user.target.wants && \
+    ln -sf /etc/systemd/system/envd.service /etc/systemd/system/multi-user.target.wants/envd.service
+
+# Create claude-FastAPI systemd service 
+RUN echo '[Unit]' > /etc/systemd/system/claude-fastapi.service && \
+    echo 'Description=Claude-FastAPI service' >> /etc/systemd/system/claude-fastapi.service && \
+    echo 'After=envd.service' >> /etc/systemd/system/claude-fastapi.service && \
+    echo '' >> /etc/systemd/system/claude-fastapi.service && \
+    echo '[Service]' >> /etc/systemd/system/claude-fastapi.service && \
+    echo 'Type=simple' >> /etc/systemd/system/claude-fastapi.service && \
+    echo 'Restart=always' >> /etc/systemd/system/claude-fastapi.service && \
+    echo 'User=root' >> /etc/systemd/system/claude-fastapi.service && \
+    echo 'WorkingDirectory=/root/.server' >> /etc/systemd/system/claude-fastapi.service && \
+    echo 'ExecStart=/usr/local/bin/python -m uvicorn claude_main:app --host 0.0.0.0 --port 49999' >> /etc/systemd/system/claude-fastapi.service && \
+    echo '' >> /etc/systemd/system/claude-fastapi.service && \
+    echo '[Install]' >> /etc/systemd/system/claude-fastapi.service && \
+    echo 'WantedBy=multi-user.target' >> /etc/systemd/system/claude-fastapi.service
+
+# Enable FastAPI service
+RUN ln -sf /etc/systemd/system/claude-fastapi.service /etc/systemd/system/multi-user.target.wants/claude-fastapi.service
+
+# Create symlink from /sbin/init to systemd 
+RUN ln -sf /lib/systemd/systemd /sbin/init
+
+# Set hostname and DNS
+RUN echo "firecracker-vm" > /etc/hostname || true
+RUN echo -e "nameserver 8.8.8.8\nnameserver 8.8.4.4" > /etc/resolv.conf || true
+
+# Create workspace directory for user code execution
+RUN mkdir -p /workspace && chmod 777 /workspace
+
+# Systemd will be the init process (NO CMD - systemd manages all services)
