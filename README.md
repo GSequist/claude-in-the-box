@@ -4,7 +4,7 @@ Minimal sandbox orchestration system allowing you to serve claude-code like omni
 ## Short tech stack: 
 You launch Firecracker microVMs on cloud instance. Each user request creates a persistent claude agent until microVM is killed. Files and context persists between runs. 
 
-The micro daemon that runs inside microVM comes from s oss e2b infrastructure repository. -> https://github.com/e2b-dev/infra
+The micro daemon that runs inside microVM comes from excellent e2b infrastructure repository. -> https://github.com/e2b-dev/infra
 
 ## Running:
 
