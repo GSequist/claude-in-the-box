@@ -8,11 +8,11 @@ The micro daemon that runs inside microVM comes from excellent e2b infrastructur
 
 ## Running:
 
-You can play with various ways to use this: 
+You can play with various ways to use this:
 
-→ **Simplest**: your users send in task, you spin a microVM, claude works inside until done then you pull files
-  →→ **Interesting**: do a little conversation magic -> send in previous messages from db for context and then persist what claude streams back
-  →→→ **Advanced**: you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
+- → **Simplest**: your users send in task, you spin a microVM, claude works inside until done then you pull files
+  - →→ **Interesting**: do a little conversation magic -> send in previous messages from db for context and then persist what claude streams back
+    - →→→ **Advanced**: you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
 
 ## Instructions:
 
