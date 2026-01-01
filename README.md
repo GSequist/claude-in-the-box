@@ -1,18 +1,21 @@
 # Claude-in-the-box: 
 Minimal sandbox orchestration system allowing you to serve claude-code like omni-capable agents to normal users.
+Claude code-like monent for normal users.
 
 ## Short tech stack: 
-You launch Firecracker microVMs on cloud instance. Each user request creates a persistent claude agent until microVM is killed. Files and context persists between runs. 
+ - You launch Firecracker microVMs on cloud instance. 
+ - Each user request creates a persistent claude agent until microVM is killed. Files and context persists between runs. 
+ - Complete isolation of each microVM means claude can freely bash its way through same way claude code does in your terminal on your local machine
 
-The micro daemon that runs inside microVM comes from excellent e2b infrastructure repository. -> https://github.com/e2b-dev/infra
+<sub>*The micro daemon that runs inside microVM comes from excellent e2b infrastructure repository* → https://github.com/e2b-dev/infra</sub>
 
 ## Running:
 
-You can play with various ways to use this:
+Various ways to use this:
 
-- → **Simplest**: your users send in task, you spin a microVM, claude works inside until done then you pull files
-  - →→ **Interesting**: do a little conversation magic -> send in previous messages from db for context and then persist what claude streams back
-    - →→→ **Advanced**: you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
+- Simplest: your users send in task, you spin a microVM, claude works inside until done then you pull files
+- Interesting: work more with the conversation -> send in previous messages from db for context and then persist what claude streams back
+- More interesting: you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
 
 ## Instructions:
 
