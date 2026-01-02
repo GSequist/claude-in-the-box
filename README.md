@@ -17,7 +17,7 @@ Various ways to use this:
 - Interesting: work more with the conversation -> send in previous messages from db for context and then persist what claude streams back
 - More interesting: you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
 
-``ascii
+```ascii
                                                                                                     
            .----------------------------------------------------------------------------=.          
            .:                                                                           -.          
