@@ -18,47 +18,47 @@ Various ways to use this:
 - More interesting: you can even use this as a teleport tool for claude -> tell him for advanced tasks he can use tool teleport, then send in context, then on tool finish, prepend claude's stream as messages to achieve continuity 
 
 ```ascii
-                                                                                                    
-           .----------------------------------------------------------------------------=.          
-           .:                                                                           -.          
-           .:                                                                           -.          
-           .:                                                                           -.          
-           .:                                                                           -.          
-           .:                                                                           -.          
-           .:                                  .:==-.       ..:..                       -.          
-           .:                                  :====-.      :===.                       -.          
-           .:                                  .=====:.     ===-.     ....              -.          
-           .:                                   .=====:    .===:.  ..====:.             -.          
-           .:                           ..:-:.   .-====:.  .===. ..-=====:.             -.          
-           .:                           .:====-.. .-====:. :==-. .======:.              -.          
-           .:                           ..-======:..-====:.-==:.-======..               -.          
-           .:                             ...======-.-====.===:-=====:.                 -.          
-           .:                                 .:==========-=========:.     ....         -.          
-           .:                                    .-================....::--===-.        -.          
-           .:                        ..::::....... .:-=======================-:.        -.          
-           .:                        .:==============================-::....            -.          
-           .:                         ................===============------::..         -.          
-           .:                                    ..:=============-:-===========.        -.          
-           .:                                ...-====-:-===========:.. ...:-=-:.        -.          
-           .:                              ..-====-:.:===:-=--===-===:.                 -.          
-           .:                            .:=====:. .-==-..==:.-===::===:.               -.          
-           .:                            .:--:..  .===:..:==. .-===:..===:.             -.          
-           .:                                   .-===.. .-==.   :===-...-==.            -.          
-           .:                                 ..===-.  ..===.    .====.  ..             -.          
-           .:                                 .-=-.    .:==-     ..-==.                 -.          
-           .:                                  ...     .-==-                            -.          
-           .:                                          ..-:.                            -.          
-           .:                                                                           -.          
-           .:                                                                           -.          
-           .:                                                                           -.          
-           .-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::=.          
-                                                                                                    
+                                                                                                
+       .----------------------------------------------------------------------------=.          
+       .:                                                                           -.          
+       .:                                                                           -.          
+       .:                                                                           -.          
+       .:                                                                           -.          
+       .:                                                                           -.          
+       .:                                  .:==-.       ..:..                       -.          
+       .:                                  :====-.      :===.                       -.          
+       .:                                  .=====:.     ===-.     ....              -.          
+       .:                                   .=====:    .===:.  ..====:.             -.          
+       .:                           ..:-:.   .-====:.  .===. ..-=====:.             -.          
+       .:                           .:====-.. .-====:. :==-. .======:.              -.          
+       .:                           ..-======:..-====:.-==:.-======..               -.          
+       .:                             ...======-.-====.===:-=====:.                 -.          
+       .:                                 .:==========-=========:.     ....         -.          
+       .:                                    .-================....::--===-.        -.          
+       .:                        ..::::....... .:-=======================-:.        -.          
+       .:                        .:==============================-::....            -.          
+       .:                         ................===============------::..         -.          
+       .:                                    ..:=============-:-===========.        -.          
+       .:                                ...-====-:-===========:.. ...:-=-:.        -.          
+       .:                              ..-====-:.:===:-=--===-===:.                 -.          
+       .:                            .:=====:. .-==-..==:.-===::===:.               -.          
+       .:                            .:--:..  .===:..:==. .-===:..===:.             -.          
+       .:                                   .-===.. .-==.   :===-...-==.            -.          
+       .:                                 ..===-.  ..===.    .====.  ..             -.          
+       .:                                 .-=-.    .:==-     ..-==.                 -.          
+       .:                                  ...     .-==-                            -.          
+       .:                                          ..-:.                            -.          
+       .:                                                                           -.          
+       .:                                                                           -.          
+       .:                                                                           -.          
+       .-:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::=.          
+                                                                                                
 ```
 
 ## Instructions:
 
 <details>
-<summary>0. GCP Setup (First time only) - Click to expand</summary>
+<summary>0. GCP Setup (First time only)</summary>
 
 Before launching any GCP instances, you need to authenticate and select your project:
 
@@ -101,7 +101,7 @@ gcloud config set compute/zone us-central1-a
 </details>
 
 <details>
-<summary>1. /envd-mini instructions - Click to expand</summary>
+<summary>1. /envd-mini instructions</summary>
 
 -envd-mini contains go code to create daemon server that runs inside microVMs 
 --> run GOOS=linux GOARCH=amd64 go build -o envd main.go to compile into a deamon  we will use
@@ -115,7 +115,7 @@ Should show: -rwxr-xr-x ... 18M ... envd
 2. /host -> host code for google cloud (allows virtualization) -> this is your firecracker host that will spin the microVMs inside
 
 <details>
-<summary>2.a and 2.b GCP Launch - Click to expand</summary>
+<summary>2.a and 2.b GCP Launch</summary>
 
 2.a Launch GCP instance (choose spot or standard)
 
@@ -175,7 +175,7 @@ gcloud compute instances add-tags firecracker-host \
 </details>
 
 <details>
-<summary>2.c Host dependancies - Click to expand</summary>
+<summary>2.c Host dependancies</summary>
 
 SSH in and install system dependencies
 
@@ -308,7 +308,7 @@ sudo systemctl status firecracker-host.service
 </details>
 
 <details>
-<summary>3. Building your Claude agent image - Click to expand</summary>
+<summary>3. Building your Claude agent image</summary>
 
 You can do this either locally and then copy the finished image to Firecracker-host or copy base files and build on firecracker (copy of final image takes long because its a large file)
 
@@ -350,7 +350,7 @@ sudo systemctl restart firecracker-host
 </details>
 
 <details>
-<summary>4. Cron cleanup orphaned microVMs (Optional) - Click to expand</summary>
+<summary>4. Cron cleanup orphaned microVMs (Optional)</summary>
 
 4. Cron (cleanup orphaned microVMs)
 
@@ -438,7 +438,7 @@ d. look over the routes in [wherever this repo]/claude_in_the_box/host/api_route
 e. ! Note: I deliberately launched a spot instance at the beginning to save you costs -> this means Google can at any time terminate the instance -> this is not a problem as you client can always directly check your instance status and then start it if needed, for example before your client sends task to claude it checks instance like:
 
 <details>
-<summary>Example - Click to expand</summary>
+<summary>Example</summary>
 
 ```
 if chosen_instance.status == "TERMINATED":
@@ -483,7 +483,7 @@ if chosen_instance.status == "TERMINATED":
 
 
 <details>
-<summary>Google instance states for ease of reference - Click to expand</summary>
+<summary>Google instance states for ease of reference</summary>
 
 **Initial States:**
 - **PENDING**: Flex-start VMs enter this state while Compute Engine attempts to acquire resources within
@@ -512,7 +512,7 @@ automatic termination
 </details>
 
 <details>
-<summary>6. (Optional) Domain + SSL - Click to expand</summary>
+<summary>6. (Optional) Domain + SSL</summary>
 
 6. (Optional) Domain + SSL
 
